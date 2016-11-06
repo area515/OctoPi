@@ -23,6 +23,8 @@ echo "gpu_mem=64" >> /boot/config.txt
 echo "disable_overscan=1" >> /boot/config.txt
 echo "framebuffer_depth=24" >> /boot/config.txt
 echo "framebuffer_ignore_alpha=1" >> /boot/config.txt
+echo "hdmi_pixel_encoding=2" >> /boot/config.txt
+
 
 # install config files
 unpack /filesystem/root /
