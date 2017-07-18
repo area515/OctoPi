@@ -1,0 +1,15 @@
+dist: trusty
+sudo: required
+git:
+  depth: 1
+language: bash
+os:
+  - linux
+install:
+  - sudo modprobe loop
+  - sudo apt-get install gawk util-linux realpath qemu-user-static zerofree
+  - ( cd src/image ; curl -J -O -L 'http://downloads.raspberrypi.org/raspbian_lite_latest' )
+script:
+  - cd src
+  - sudo bash -x ./build photonic3d
+  - ls -lh workspace-photonic3d
