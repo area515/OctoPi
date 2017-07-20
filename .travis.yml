@@ -5,11 +5,42 @@ git:
 language: bash
 os:
   - linux
+cache:
+  directories:
+    - src/image
 install:
   - sudo modprobe loop
   - sudo apt-get install gawk util-linux realpath qemu-user-static zerofree
-  - ( cd src/image ; curl -J -O -L 'http://downloads.raspberrypi.org/raspbian_lite_latest' )
+  - ( cd src/image;
+      curl -JOL -C - 'https://downloads.raspberrypi.org/raspbian_lite_latest';
+      ls -lh
+    )
 script:
   - cd src
   - sudo bash -x ./build photonic3d
   - ls -lh workspace-photonic3d
+  - if test -z "$(find workspace-photonic3d -maxdepth 1 -name '*.img' -print -quit)";
+    then
+        echo "FAIL No image generated";
+        exit 1;
+    fi
+before_deploy:
+  - ( cd workspace-photonic3d ; zip -9 ../photonic-image.zip *.img )
+  - ls -lh *.zip
+  - cd ..
+  - mkdir images
+  - mv src/*.zip images
+deploy:
+  provider: s3
+  skip_cleanup: true
+  access_key_id: AKIAJTZO554W3GILXXFA
+  secret_access_key:
+    secure: Sjp6Y0IJ29tlgaC1kN42p+TPaKQlAYtnjuDNoPUMQYXAhr848z9kNorlysrpzq9GDv2kvhOVKXHHixoTSQsC4LiaVD80q91RIoVtYeVDdR3G6Ls6mFhrBGzbzngfHhx5wVBkiP7SaU2Qyv03qNRQCjRZMyu/ucDwdM3B7/vG01ZT2Ni6iE9e5nIpZ36gCwAD1V9jxae+bdgHJtIVift5MI+pnSv+a7CYC6/29G996r09gLZCZxeGwgKzxXyiovx0yEF6uNVYVlfTJ5Al6B6o8G99pUCbcjDFzXKXt7YPfmI2StSwR1ccUoXmYba0RnbyFkfyp5O/E8GLD4h2sS3oN9vF1FhZfC+fV8P49Agf+LB/xYFOeGrg6VcR7ba0ZmSMN4BcHXLpudBdMxKFoRdjUDJfN8j4Vj2Vnz2Enpaf+16og/k+91+/KXAapQqf27FN5ucOpg7YRNTjWd5xqIMrCRE84pmHUhqbRs6nJGEsBVZ4QgWaPve9kwuM4yrVdVVIhh0Qw1DT4w0vnYp8eTuDQbejqSwig4xkzDwHJj1W04o51q/vbTjmpLgRWt9vSKPM3eM7NaVaUDsXi/QEAHeb2RjW0Djw0hUkj6HgnKI30LoPU9dh9jpFkf4Fain5PldJzMortbmp9vYXJ+qrRK6gj42Wou3QKzM83bQ28nxMOgg=
+  bucket: photonic3d
+  region: us-west-2
+  local-dir: images
+  acl: 'public_read'
+  storage-class: 'REDUCED_REDUNDANCY'
+  on:
+    repo: area515/OctoPi
+    branch: devel
