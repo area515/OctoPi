@@ -8,7 +8,7 @@ install_chroot_fail_on_error_trap
 echo exit 101 > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d
 
-apt-get -y --force-yes install xinit x11-xserver-utils oracle-java8-jdk fswebcam librxtx-java hostapd isc-dhcp-server bind9 bind9utils dnsutils avahi-daemon libavahi-compat-libdnssd1
+apt-get -y --force-yes install xinit xserver-xorg oracle-java8-jdk fswebcam librxtx-java hostapd isc-dhcp-server bind9 bind9utils dnsutils avahi-daemon libavahi-compat-libdnssd1 dos2unix
 
 apt-get remove -y --purge aptitude aptitude-common g++ g++-4.9 gcc gcc-4.9 gdb gdbserver luajit perl perl-modules python-rpi.gpio bluez bluez-firmware geoip-database libc-dev-bin libfreetype6-dev samba-common libdrm-radeon1 libdrm-amdgpu1 libdrm-freedreno1 libdrm-nouveau2 xserver-xorg-input-synaptics xserver-xorg-input-wacom manpages manpages-dev
 
@@ -37,9 +37,6 @@ update-rc.d -f wifi_access_point remove
 
 wget "$OCTOPI_PHOTONIC3D_START_URL"
 chmod a+rx start.sh
-# comment out the calls to startx/java, don't actually want to start the server
-#sed -i -e 's/^\(\s*java \)/\#\1/' start.sh
-#sed -i -e 's/^\(\s*startx \)/\#\1/' start.sh
 
 # Wait until background tasks (curl DL of dist zip) complete
 wait
@@ -50,3 +47,7 @@ echo "All installed packages:"
 echo "-----------------------"
 dpkg --get-selections | grep -v deinstall
 
+if [ ! -f /usr/bin/X ]; then
+    echo "/usr/bin/X not found!"
+    exit 1
+fi
