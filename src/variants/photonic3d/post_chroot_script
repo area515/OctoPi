@@ -8,11 +8,9 @@ install_chroot_fail_on_error_trap
 echo exit 101 > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d
 
-apt-get -y --force-yes install xinit xserver-xorg oracle-java8-jdk fswebcam librxtx-java hostapd isc-dhcp-server bind9 bind9utils dnsutils avahi-daemon libavahi-compat-libdnssd1 dos2unix
+apt-get -y --force-yes install xinit xserver-xorg x11-xserver-utils oracle-java8-jdk fswebcam librxtx-java hostapd isc-dhcp-server bind9 bind9utils dnsutils avahi-daemon libavahi-compat-libdnssd1 dos2unix
 
-apt-get remove -y --purge aptitude aptitude-common g++ g++-4.9 gcc gcc-4.9 gdb gdbserver lua5.1 cpp cpp-4.9 luajit perl perl-modules python-rpi.gpio bluez bluez-firmware geoip-database libc-dev-bin libfreetype6-dev samba-common libdrm-radeon1 libdrm-amdgpu1 libdrm-freedreno1 libdrm-nouveau2 xserver-xorg-input-synaptics xserver-xorg-input-wacom manpages manpages-dev openssh-client openssh-server openssh-sftp-server libraspberrypi-dev libraspberrypi-doc libpython2.7-stdlib gcc-4.6-base:armhf
-
-apt-get -y --force-yes install dropbear
+#apt-get remove -y --purge aptitude aptitude-common g++ g++-4.9 gcc gcc-4.9 gdb gdbserver luajit perl perl-modules python-rpi.gpio bluez bluez-firmware geoip-database libc-dev-bin libfreetype6-dev samba-common libdrm-radeon1 libdrm-amdgpu1 libdrm-freedreno1 libdrm-nouveau2 xserver-xorg-input-synaptics xserver-xorg-input-wacom manpages manpages-dev
 
 apt-get -y --force-yes upgrade
 apt-get autoremove -y
@@ -52,7 +50,11 @@ rm -f `find /var/log -type f`
 
 echo "Large files:"
 echo "------------"
-find / -type f -size +5000k -exec ls -lh {} \; | awk '{ print $NF ": " $5 }'
+find / -type f -print0 | xargs -0 du | sort -n | tail -20 | cut -f2 | xargs -I{} du -sh {}
+
+echo "Large directories:"
+echo "------------------"
+find / -type d -print0 | xargs -0 du | sort -n | tail -20 | cut -f2 | xargs -I{} du -sh {}
 
 if [ ! -f /usr/bin/X ]; then
     echo "/usr/bin/X not found!"
