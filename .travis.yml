@@ -12,7 +12,7 @@ install:
   - sudo modprobe loop
   - sudo apt-get install gawk util-linux realpath qemu-user-static zerofree
   - ( cd src/image;
-      curl -JOL -C - 'https://downloads.raspberrypi.org/raspbian_lite_latest';
+      wget -c --trust-server-names 'https://downloads.raspberrypi.org/raspbian_lite_latest';
       ls -lh
     )
 script:
